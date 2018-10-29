@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+  <H1>Build API with Flask for NYC Tree Health Data </H1>
+  <div>
+    Click the link below will connect the query data with Flask.<br>
+    Change the Boro in the url for different boro data.<br>
+
+
+    <A HREF='http://127.0.0.1:5000/TreeHealth?boroname=Bronx'>Q1. Tree Health of Bronx</A><br>
+
+    <A HREF='http://127.0.0.1:5000/StewardVSTreeHealth?boroname=Bronx'>Q2. Steward VS Tree Health of Bronx</A>
+
+  </div>
+
+  {% block content %}{% endblock %}
+  </body>
+</html>
