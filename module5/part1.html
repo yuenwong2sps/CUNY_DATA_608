@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Part 1</title>
+<script lang="javascript">
+
+function ReverseText() {
+  t = document.getElementById("beforetext").value
+
+  //swap characters
+
+  aftertext = document.getElementById("aftertext")
+  aftertext.innerHTML = reverse_string(t)
+}
+
+function reverse_string(input_text) {
+
+  var tmp = ""
+  for(i=input_text.length - 1;i>-1; i--) {
+    tmp += input_text[i]
+  }
+
+  return tmp
+
+}
+
+
+function PrintMultiple() {
+
+ var b = document.getElementById('base_multiple').value
+ p = document.getElementById('printtext')
+
+ p.innerHTML = generateTables(Number(b))
+
+}
+
+function generateTables(base_value) {
+  var tmp = "<table>"
+  for (r=1;r<6;r++) { // 1-5 rows
+    tmp += "<tr>"
+    for(c=1;c<5;c++) {// 1-4 columns
+      tmp += ( "<td>" + (base_value * r * c) +"</td>" )
+    }
+    tmp += "</tr>"
+
+  }
+
+  tmp += "</table>"
+  return tmp
+}
+
+</script>
+
+</head>
+<body>
+
+<form>
+<h2>Reverse Text</h2>
+<input id="beforetext" type="text" size="4">
+<input type="button" onclick="ReverseText()" value="Reverse">
+<div id="aftertext"></div>
+
+<h2>Print first 20 multiples</h2>
+<input id="base_multiple" type="number" size="4">
+<input type="button" onclick="PrintMultiple()" value="Print">
+<div id="printtext"></div>
+</form>
+
+</body>
+
+</html>
