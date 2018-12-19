@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Data608 Final</title>
+    <meta charset="utf-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.min.js"></script>
+
+
+    <style>
+    .dropbtn {
+        background-color: #3498DB;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .dropbtn:hover, .dropbtn:focus {
+        background-color: #2980B9;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        overflow: auto;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown a:hover {background-color: #ddd;}
+
+    .show {display: block;}
+    </style>
+    <style>
+        svg rect {
+            fill: orange;
+        }
+
+        svg text {
+             fill:Black;
+            font: 10px sans-serif;
+            text-anchor: start;
+        }
+    </style>
+
+  </head>
+  <body>
+  <H1>How experienced are hosptials to perform treatment?</H1>
+  <div>
+    <p>
+    Analysis on CMS Medicare Discharged Inpatient record in 2015. Use Pyhon Flask to connect Google bigquery on CMS Medicare data.
+
+    Use the number of discharged inpatients per treatment in hosptials as proxy measurement for the hosptials experiences.
+  </p>
+<br><br>
+
+    <h2>Change the treatment in this drop down to see the statistic</h2>
+
+
+    <div id="dropdown">
+
+   </div>
+
+   <h2>1) The total number of top 3 hosptial discharged inpatients by state </h2>
+   <div id="barChart"></div>
+
+   <h2>2) The breakdown of top 3 hosptial discharged patients by state </h2>
+   <div>
+     <table border=1 id="dataDetail">
+
+     </table>
+   </div>
+
+
+
+
+   <script type="text/javascript">
+   generateMenu()
+
+   function generateMenu() {
+
+     d3.csv("{{ url_for('static', filename='drg_type.csv') }}", function(error, data) {
+         var select = d3.select("#dropdown")
+           .append("select")
+
+         select
+           .on("change", function(d) {
+             var value = d3.select(this).property("value");
+             var svg = d3.select("svg");
+             svg.remove();
+             d3.selectAll('thead').remove();
+             d3.selectAll('tbody').remove();
+             q1(value);
+           });
+
+         select.selectAll("option")
+           .data(data)
+           .enter()
+             .append("option")
+             .attr("value", function (d) { return d.drg_definition; })
+             .text(function (d) { return d.drg_definition; });
+       });
+
+
+
+   }
+
+   </script>
+
+   <script type="text/javascript">
+
+
+
+
+    q1("025")
+
+
+    function q1(drg) {
+
+
+      //var presidents_csv = d3.json("drg_Top3ByState3.json", function(data) {
+
+      d3.json(("http://127.0.0.1:5000/Top3?DRG="+drg), function(data) {
+
+
+
+
+     console.log(data);
+
+     var width = 1200,
+     scaleFactor = 0.1,
+     barHeight = 20;
+
+     var margin = {
+                     top: 70,
+                     right: 40,
+                     bottom: 45,
+                     left: 100
+                 };
+
+
+     var graph = d3.select("#barChart")
+               .append("svg")
+               .attr("width", width + margin.left + margin.right)
+               .attr("height", barHeight * data.length + margin.top + margin.bottom)
+               .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+
+     var bar = graph.selectAll("g")
+               .data(data)
+               .enter()
+               .append("g")
+               .attr("transform", function(d, i) {
+                     return "translate(0," + i * barHeight + ")";
+               });
+
+     bar.append("rect")
+        .attr("width", function(d) {
+                 return parseFloat(d.stateDischarge) * scaleFactor;
+        })
+        .attr("height", barHeight - 1);
+
+     bar.append("text")
+        .attr("x", function(d) { return (parseFloat(d.stateDischarge) *scaleFactor); })
+        .attr("y", barHeight / 2)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "start")
+        .text(function(d) { return d.provider_state + "(" + d.stateDischarge +  ")" });
+
+        headerTitlesNice = ['State','Provider Name','Discharges']
+        headerTitles = ['provider_state','Name','Discharges']
+
+        var table = d3.select("#dataDetail");
+
+        var headers = table.append("thead").append("tr")
+                        .selectAll('th')
+                        .data(headerTitlesNice).enter()
+                        .append('th')
+                        .text( function (d) {
+                            return d
+
+                        })
+
+        var rows = table.append('tbody')
+                      .selectAll('tr')
+                      .data(data).enter()
+                      .append('tr')
+                      .selectAll('td')
+                      .data(
+                        function (row) {
+                          return headerTitles.map( function (column) {
+                            return {column: column, value: row[column]}
+                          })
+                        }
+                      ).enter()
+                      .append('td')
+                      .text( function (d) {
+                        return d.value
+                      })
+
+
+
+      } );
+
+    }
+
+
+
+
+   </script>
+
+
+
+
+  </div>
+
+
+  </body>
+</html>
